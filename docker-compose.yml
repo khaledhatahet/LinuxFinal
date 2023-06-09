@@ -1,0 +1,72 @@
+version '3'
+services:
+
+
+ drupal:
+    image: bitnami/drupal:latest
+    ports:
+      - '80:8080'
+    volumes:
+      - './drupal_data:/bitnami/drupal'
+    environment:
+      - DRUPAL_DATABASE_HOST=db
+      - DRUPAL_DATABASE_PORT_NUMBER=3306
+      - DRUPAL_DATABASE_NAME=drupal
+      - DRUPAL_DATABASE_USER=drupaluser
+      - DRUPAL_DATABASE_PASSWORD=drupalpassword
+    depends_on:
+      - db
+
+  db:
+    image: bitnami/mariadb:latest
+    environment:
+      - MARIADB_DATABASE=drupal
+      - MARIADB_USER=drupaluser
+      - MARIADB_PASSWORD=drupalpassword
+      - MARIADB_ROOT_PASSWORD=rootpassword
+    volumes:
+      - './mariadb_data:/bitnami/mariadb'
+      
+ webserver:
+    image: nginx:1.17.4-alpine
+    container_name: webserver
+    depends_on:
+      - drupal
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - drupal-data:/var/www/html
+      - ./nginx-conf:/etc/nginx/conf.d
+      - certbot-etc:/etc/letsencrypt
+    networks:
+      - external
+  certbot:
+    depends_on:
+      - webserver
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - drupal-data:/var/www/html
+    command: certonly --webroot --webroot-path=/var/www/html --email halit@halithatahet.live --agree-tos --no-eff-email --staging -d halithatahet.live -d www.halithatahet.live  certbot:
+
+  depends_on:
+        - webserver
+      image: certbot/certbot
+      container_name: certbot
+      volumes:
+        - certbot-etc:/etc/letsencrypt
+        - drupal-data:/var/www/html
+      command: certonly --webroot --webroot-path=/var/www/html --email sammy@your_domain --agree-tos --no-eff-email --staging -d your_domain -d www.your_domain
+
+networks:
+  external:
+    driver: bridge
+  internal:
+    driver: bridge
+
+volumes:
+  drupal-data:
+  mariadb_data:
+  certbot-etc:
