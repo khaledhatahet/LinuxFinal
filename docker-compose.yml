@@ -11,9 +11,9 @@ services:
     environment:
       - DRUPAL_DATABASE_HOST=db
       - DRUPAL_DATABASE_PORT_NUMBER=3306
-      - DRUPAL_DATABASE_NAME=drupal
-      - DRUPAL_DATABASE_USER=drupaluser
-      - DRUPAL_DATABASE_PASSWORD=drupalpassword
+      - DRUPAL_DATABASE_NAME=final
+      - DRUPAL_DATABASE_USER=YAM428
+      - DRUPAL_DATABASE_PASSWORD=030119084
     depends_on:
       - db
 
